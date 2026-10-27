@@ -1,15 +1,17 @@
+
 name: CI Pipeline
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   backend-build:
     name: Build & Test Backend (Java Spring Boot)
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -18,17 +20,18 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: temurin
           cache: maven
+          cache-dependency-path: server/pom.xml
 
       - name: Build and Test Backend
-        run: |
-          cd personal-finance-tracker-pro/server
-          mvn clean test-compile
+        working-directory: server
+        run: mvn clean test-compile
 
   frontend-build:
     name: Build & Verify Frontend (React + Vite)
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -37,9 +40,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: client/package-lock.json
 
       - name: Install & Build Frontend
+        working-directory: client
         run: |
-          cd personal-finance-tracker-pro/client
           npm ci || npm install --legacy-peer-deps
           npm run build
